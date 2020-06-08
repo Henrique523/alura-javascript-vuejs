@@ -2,14 +2,16 @@
 
 <template>
   <div class="corpo">
+    <input type="text" class="filtro" @input="filtro=$event.target.value" placeholder="Filtre por parte do título"></input>
 
     <h1 class="centralizado">{{ titulo }}</h1>
 
     <ul class="lista-fotos">
-      <li class="lista-fotos-item" v-for="foto in fotos">
+      <li class="lista-fotos-item" v-for="foto in fotosComFiltro">
 
         <meu-painel :titulo="foto.titulo">
-          <img class="imagem-responsiva" :src="foto.url" :alt="foto.titulo">
+          <imagem-responsiva :url="foto.url" :titulo="foto.titulo">
+          </imagem-responsiva>
         </meu-painel>
 
       </li>
@@ -20,14 +22,29 @@
 
 <script>
   import Painel from './components/shared/painel/Painel';
+  import ImagemResponsiva from "./components/shared/imagem-responsiva/ImagemResponsiva";
   export default {
     components: {
-      'meu-painel': Painel
+      'meu-painel': Painel,
+      'imagem-responsiva': ImagemResponsiva
     },
     data() {
       return {
         titulo: 'Alurapic',
-        fotos: []
+        fotos: [],
+        filtro: ''
+      }
+    },
+
+    computed: {
+      fotosComFiltro() {
+        if(this.filtro) {
+          let exp = new RegExp(this.filtro.trim(), 'i');
+          return this.fotos.filter(foto => exp.test(foto.titulo));
+          return [];
+        } else {
+          return this.fotos;
+        }
       }
     },
 
@@ -59,7 +76,10 @@
     display: inline-block;
   }
 
-  .imagem-responsiva {
+
+
+  .filtro {
+    display: block;
     width: 100%;
   }
 </style>
