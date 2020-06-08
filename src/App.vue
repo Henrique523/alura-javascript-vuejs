@@ -1,9 +1,17 @@
+<!-- alurapic/src/App.vue -->
+
 <template>
-  <div>
-    <h1>{{ titulo }}</h1>
-    <ul>
-      <li v-for="foto of fotos">
-        <img :src="foto.url" :alt="foto.titulo">
+  <div class="corpo">
+
+    <h1 class="centralizado">{{ titulo }}</h1>
+
+    <ul class="lista-fotos">
+      <li class="lista-fotos-item" v-for="foto in fotos">
+
+        <meu-painel :titulo="foto.titulo">
+          <img class="imagem-responsiva" :src="foto.url" :alt="foto.titulo">
+        </meu-painel>
+
       </li>
     </ul>
 
@@ -11,25 +19,47 @@
 </template>
 
 <script>
-export default {
-  data () {
-    return {
-      titulo: 'Alurapic',
-      fotos: [
-        {
-          url: 'https://s2.glbimg.com/slaVZgTF5Nz8RWqGrHRJf0H1PMQ=/0x0:800x450/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2019/U/e/NTegqdSe6SoBAoQDjKZA/cachorro.jpg',
-          titulo: 'cachorro'
-        },
-        {
-          url: 'https://s2.glbimg.com/slaVZgTF5Nz8RWqGrHRJf0H1PMQ=/0x0:800x450/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2019/U/e/NTegqdSe6SoBAoQDjKZA/cachorro.jpg',
-          titulo: 'cachorrão'
-        }
-      ],
+  import Painel from './components/shared/painel/Painel';
+  export default {
+    components: {
+      'meu-painel': Painel
+    },
+    data() {
+      return {
+        titulo: 'Alurapic',
+        fotos: []
+      }
+    },
+
+    created() {
+      this.$http.get('http://localhost:3000/v1/fotos')
+      .then(res => res.json())
+      .then(fotos => this.fotos = fotos, err => console.log(err))
     }
   }
-}
 </script>
 
 <style>
 
+  .centralizado {
+    text-align: center;
+  }
+
+  .corpo {
+    font-family: Helvetica, sans-serif;
+    margin: 0 auto;
+    width: 96%;
+  }
+
+  .lista-fotos {
+    list-style: none;
+  }
+
+  .lista-fotos .lista-fotos-item {
+    display: inline-block;
+  }
+
+  .imagem-responsiva {
+    width: 100%;
+  }
 </style>
