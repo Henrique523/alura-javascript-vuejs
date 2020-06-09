@@ -13,6 +13,9 @@
 
         <meu-painel :titulo="foto.titulo">
           <imagem-responsiva :url="foto.url" :titulo="foto.titulo" v-meu-transform:scale.animate="1.2"/>
+          <router-link :to="{ name: 'altera', params: { id: foto._id } }">
+            <meu-botao tipo="button" rotulo="ALTERAR"/>
+          </router-link>
           <meu-botao
             tipo="button"
             rotulo="REMOVER"
@@ -67,11 +70,7 @@
             let indice = this.fotos.indexOf(foto);
             this.fotos.splice(indice, 1);
             this.mensagem = 'Foto removida com sucesso';
-          }, err => {
-            console.log(err);
-            this.mensagem = 'Não foi possível remover a foto';
-
-          });
+          }, err => this.mensagem = err.message);
       }
     },
 
@@ -80,7 +79,7 @@
       this.service = new FotoService(this.$resource);
 
       this.service.lista()
-        .then(fotos => this.fotos = fotos, err => console.log(err));
+        .then(fotos => this.fotos = fotos, err => this.mensagem = err.message);
     }
   }
 </script>
