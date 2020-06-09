@@ -2,9 +2,11 @@
 
 <template>
   <div>
-    <input type="text" class="filtro" @input="filtro=$event.target.value" placeholder="Filtre por parte do título"></input>
-
     <h1 class="centralizado">{{ titulo }}</h1>
+
+    <p v-show="mensagem" class="centralizado">{{ mensagem }}</p>
+    <input type="text" class="filtro" @input="filtro=$event.target.value"
+           placeholder="Filtre por parte do título"></input>
 
     <ul class="lista-fotos">
       <li class="lista-fotos-item" v-for="foto in fotosComFiltro">
@@ -15,7 +17,7 @@
             tipo="button"
             rotulo="REMOVER"
             @botaoAtivado="remove(foto)"
-            :confirmacao="false"
+            :confirmacao="true"
             estilo="perigo"/>
         </meu-painel>
 
@@ -29,6 +31,7 @@
   import Painel from '../shared/painel/Painel';
   import ImagemResponsiva from "../shared/imagem-responsiva/ImagemResponsiva";
   import Botao from "../shared/botao/Botao";
+  import FotoService from "../../domain/foto/FotoService";
 
   export default {
     components: {
@@ -40,13 +43,14 @@
       return {
         titulo: 'Alurapic',
         fotos: [],
-        filtro: ''
+        filtro: '',
+        mensagem: ''
       }
     },
 
     computed: {
       fotosComFiltro() {
-        if(this.filtro) {
+        if (this.filtro) {
           let exp = new RegExp(this.filtro.trim(), 'i');
           return this.fotos.filter(foto => exp.test(foto.titulo));
           return [];
@@ -58,14 +62,25 @@
 
     methods: {
       remove(foto) {
-          alert('Remover a foto' + foto.titulo);
+        this.service.apaga({id: foto._id})
+          .then(() => {
+            let indice = this.fotos.indexOf(foto);
+            this.fotos.splice(indice, 1);
+            this.mensagem = 'Foto removida com sucesso';
+          }, err => {
+            console.log(err);
+            this.mensagem = 'Não foi possível remover a foto';
+
+          });
       }
     },
 
     created() {
-      this.$http.get('http://localhost:3000/v1/fotos')
-        .then(res => res.json())
-        .then(fotos => this.fotos = fotos, err => console.log(err))
+
+      this.service = new FotoService(this.$resource);
+
+      this.service.lista()
+        .then(fotos => this.fotos = fotos, err => console.log(err));
     }
   }
 </script>
@@ -83,7 +98,6 @@
   .lista-fotos .lista-fotos-item {
     display: inline-block;
   }
-
 
 
   .filtro {
